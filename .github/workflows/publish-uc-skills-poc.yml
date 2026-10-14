@@ -29,22 +29,12 @@ jobs:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
         with:
           persist-credentials: false
-      - name: Map every source skill folder
-        shell: bash
-        run: |
-          python - <<'PY'
-          import json, os
-          from pathlib import Path
-          Path('skills-poc.yaml').write_text(json.dumps({
-              'version': 1,
-              'directories': [{'path': 'skills', 'schema': os.environ['UC_SKILLS_SCHEMA']}]
-          }))
-          PY
       # Tested POC release, pinned to its commit.
       - uses: sunishsheth2009/uc-skills-action@97129de1ab3f0cf7df01f7b51efa0427b4c36d8f
         id: skills
         with:
-          mapping-file: skills-poc.yaml
+          skills-directory: skills
+          target-schema: ${{ env.UC_SKILLS_SCHEMA }}
           dry-run: ${{ inputs.dry_run }}
           prune-files: 'true'
       - name: Upload publishing report

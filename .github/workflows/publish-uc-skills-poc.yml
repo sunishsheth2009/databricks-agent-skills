@@ -17,6 +17,9 @@ jobs:
     runs-on: [self-hosted, linux, x64, uc-skills-poc]
     environment: staging
     env:
+      # Trust the connected runner machine's installed corporate CA bundle.
+      NODE_EXTRA_CA_CERTS: /etc/ssl/certs/ca-certificates.crt
+      REQUESTS_CA_BUNDLE: /etc/ssl/certs/ca-certificates.crt
       DATABRICKS_AUTH_TYPE: oauth-m2m
       DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
       DATABRICKS_CLIENT_ID: ${{ vars.DATABRICKS_CLIENT_ID }}

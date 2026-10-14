@@ -17,9 +17,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: staging
     env:
-      DATABRICKS_AUTH_TYPE: github-oidc
+      DATABRICKS_AUTH_TYPE: oauth-m2m
       DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
       DATABRICKS_CLIENT_ID: ${{ vars.DATABRICKS_CLIENT_ID }}
+      DATABRICKS_CLIENT_SECRET: ${{ secrets.DATABRICKS_CLIENT_SECRET }}
       UC_SKILLS_SCHEMA: ${{ vars.UC_SKILLS_SCHEMA || 'acme.team_skills' }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
@@ -36,8 +37,8 @@ jobs:
               'directories': [{'path': 'skills', 'schema': os.environ['UC_SKILLS_SCHEMA']}]
           }))
           PY
-      # Replace with the reviewed action repository/release SHA before running.
-      - uses: OWNER/uc-skills-action@v0.1.0
+      # Tested POC release, pinned to its commit.
+      - uses: sunishsheth2009/uc-skills-action@97129de1ab3f0cf7df01f7b51efa0427b4c36d8f
         id: skills
         with:
           mapping-file: skills-poc.yaml

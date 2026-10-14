@@ -1,0 +1,51 @@
+name: Publish UC skills POC
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Validate folders only (disable after configuring Databricks authentication)
+        type: boolean
+        default: true
+permissions:
+  contents: read
+  id-token: write
+concurrency:
+  group: uc-skills-staging-poc
+  cancel-in-progress: false
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: staging
+    env:
+      DATABRICKS_AUTH_TYPE: github-oidc
+      DATABRICKS_HOST: ${{ vars.DATABRICKS_HOST }}
+      DATABRICKS_CLIENT_ID: ${{ vars.DATABRICKS_CLIENT_ID }}
+      UC_SKILLS_SCHEMA: ${{ vars.UC_SKILLS_SCHEMA || 'acme.team_skills' }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+      - name: Map every source skill folder
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          Path('skills-poc.yaml').write_text(json.dumps({
+              'version': 1,
+              'directories': [{'path': 'skills', 'schema': os.environ['UC_SKILLS_SCHEMA']}]
+          }))
+          PY
+      # Replace with the reviewed action repository/release SHA before running.
+      - uses: OWNER/uc-skills-action@v0.1.0
+        id: skills
+        with:
+          mapping-file: skills-poc.yaml
+          dry-run: ${{ inputs.dry_run }}
+          prune-files: 'true'
+      - name: Upload publishing report
+        if: always() && steps.skills.outputs.report-file != ''
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: uc-skills-poc-report
+          path: ${{ steps.skills.outputs.report-file }}

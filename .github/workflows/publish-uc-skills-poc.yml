@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: false
 jobs:
   publish:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, linux, x64, uc-skills-poc]
     environment: staging
     env:
       DATABRICKS_AUTH_TYPE: oauth-m2m
